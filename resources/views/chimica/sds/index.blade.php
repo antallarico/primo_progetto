@@ -71,50 +71,50 @@
     </div>
   </div>
 
-<h5>Storico SDS</h5>
-	<table class="table table-striped">
-		<thead>
-			<tr>
-			<th>Data rev.</th>
-			<th>Rev</th>
-			<th>Lingua</th>
-			<th>Stato</th>
-			<th>CLP</th>
-			<th></th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach($sds as $row)
-			<tr>
-			<td>{{ $row->data_revisione?->format('d/m/Y') }}</td>
-			<td>{{ $row->rev_num }}</td>
-			<td>{{ $row->lingua }}</td>
-			<td>
-				@if($row->id === $corrente?->id)
-					<span class="badge bg-success">Corrente</span>
-				@else
-					<span class="badge bg-secondary">Storico</span>
-				@endif
-			</td>
-			<td>
-				@php $g = $row->clp?->pittogrammi ?? []; @endphp
-				{{ $row->clp?->signal_word ?? '—' }} |
-				@if($g) {{ implode(', ', $g) }} @else — @endif |
-				@if($row->clp?->frasi_h) H: {{ implode(', ', $row->clp->frasi_h) }} @endif
-			</td>
-			<td class="text-end">
-				<a href="{{ route('chimica.sds.download', $row) }}" class="btn btn-sm btn-outline-secondary">Scarica</a>
-				<form action="{{ route('chimica.sds.destroy',$row) }}" method="POST" class="d-inline" onsubmit="return confirm('Eliminare questa SDS?')">
-					@csrf @method('DELETE')
-					<button class="btn btn-sm btn-danger">Elimina</button>
-				</form>
-			</td>
-			</tr>
-			@endforeach
-		</tbody>
-</table>
+  <h5>Storico SDS</h5>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Data rev.</th>
+        <th>Rev</th>
+        <th>Lingua</th>
+        <th>Stato</th>
+        <th>CLP</th>
+        <th class="text-end">Azioni</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach($sds as $row)
+        <tr>
+          <td>{{ $row->data_revisione?->format('d/m/Y') }}</td>
+          <td>{{ $row->rev_num }}</td>
+          <td>{{ $row->lingua }}</td>
+          <td>
+            @if($row->id === $corrente?->id)
+              <span class="badge bg-success">Corrente</span>
+            @else
+              <span class="badge bg-secondary">Storico</span>
+            @endif
+          </td>
+          <td>
+            @php $g = $row->clp?->pittogrammi ?? []; @endphp
+            {{ $row->clp?->signal_word ?? '—' }} |
+            @if($g) {{ implode(', ', $g) }} @else — @endif |
+            @if($row->clp?->frasi_h) H: {{ implode(', ', $row->clp->frasi_h) }} @endif
+          </td>
+          <td class="text-end">
+            <a href="{{ route('chimica.sds.view', $row) }}" target="_blank" class="btn btn-sm btn-outline-secondary">Apri</a>
+            <a href="{{ route('chimica.sds.edit', $row) }}" class="btn btn-sm btn-secondary">Modifica</a>
+            <a href="{{ route('chimica.sds.download', $row) }}" class="btn btn-sm btn-outline-secondary">Scarica</a>
+            <form action="{{ route('chimica.sds.destroy',$row) }}" method="POST" class="d-inline" onsubmit="return confirm('Eliminare questa SDS?')">
+              @csrf @method('DELETE')
+              <button class="btn btn-sm btn-danger">Elimina</button>
+            </form>
+          </td>
+        </tr>
+      @endforeach
+    </tbody>
+  </table>
 
 </div>
 @endsection
-
-

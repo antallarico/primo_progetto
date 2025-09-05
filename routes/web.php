@@ -21,7 +21,8 @@ use App\Http\Controllers\Dpi\DpiConsegnaController;
 use App\Http\Controllers\Dpi\DpiAllegatiController;
 use App\Http\Controllers\Chimica\ProdottoChimicoController;
 use App\Http\Controllers\Chimica\SdsController;
-
+use App\Http\Controllers\Chimica\UsiController;
+use App\Http\Controllers\Chimica\UbicazioniController;
 
 
 // --- Modelli dinamici (CRUD + JSON + Builder) ------------------------------
@@ -142,7 +143,28 @@ Route::prefix('chimica')->name('chimica.')->group(function () {
 
     Route::get('sds/{sds}/download', [SdsController::class, 'download'])->name('sds.download');
     Route::delete('sds/{sds}', [SdsController::class, 'destroy'])->name('sds.destroy');
+	// SDS: view + edit/update
+	Route::get('sds/{sds}/view', [SdsController::class, 'view'])->name('sds.view');
+	Route::get('sds/{sds}/edit', [SdsController::class, 'edit'])->name('sds.edit');
+	Route::put('sds/{sds}', [SdsController::class, 'update'])->name('sds.update');
+	
+	    // Usi
+    Route::get('prodotti/{prodotto}/usi', [UsiController::class, 'index'])->name('prodotti.usi.index');
+    Route::post('prodotti/{prodotto}/usi', [UsiController::class, 'store'])->name('prodotti.usi.store');
+	Route::get('prodotti/{prodotto}/usi/{uso}/edit', [UsiController::class, 'edit'])->name('prodotti.usi.edit');
+	Route::put('prodotti/{prodotto}/usi/{uso}', [UsiController::class, 'update'])->name('prodotti.usi.update');
+    Route::delete('prodotti/{prodotto}/usi/{uso}', [UsiController::class, 'destroy'])->name('prodotti.usi.destroy');
+
+    // Ubicazioni
+    Route::get('prodotti/{prodotto}/ubicazioni', [UbicazioniController::class, 'index'])->name('prodotti.ubicazioni.index');
+    Route::post('prodotti/{prodotto}/ubicazioni', [UbicazioniController::class, 'store'])->name('prodotti.ubicazioni.store');
+	Route::get('prodotti/{prodotto}/ubicazioni/{ubicazione}/edit', [UbicazioniController::class, 'edit'])->name('prodotti.ubicazioni.edit');
+    Route::put('ubicazioni/{ubicazione}', [UbicazioniController::class, 'update'])->name('ubicazioni.update');
+    Route::delete('prodotti/{prodotto}/ubicazioni/{ubicazione}', [UbicazioniController::class, 'destroy'])->name('prodotti.ubicazioni.destroy');
+
 });
+
+
 
 	
 Route::get('/lavoratori', function () {

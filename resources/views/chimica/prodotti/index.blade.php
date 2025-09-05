@@ -39,11 +39,13 @@
         </td>
         <td class="text-end">
           <a class="btn btn-sm btn-secondary" href="{{ route('chimica.prodotti.edit',$p) }}">Modifica</a>
-          <a class="btn btn-sm btn-outline-primary" href="{{ route('chimica.prodotti.sds.index',$p) }}">SDS</a>
           <form action="{{ route('chimica.prodotti.destroy',$p) }}" method="POST" class="d-inline" onsubmit="return confirm('Eliminare?')">
             @csrf @method('DELETE')
             <button class="btn btn-sm btn-danger">Elimina</button>
           </form>
+		  <a class="btn btn-sm btn-outline-primary" href="{{ route('chimica.prodotti.sds.index',$p) }}">SDS</a>
+		  <a class="btn btn-sm btn-outline-primary" href="{{ route('chimica.prodotti.usi.index',$p) }}">Usi</a>
+		  <a class="btn btn-sm btn-outline-primary" href="{{ route('chimica.prodotti.ubicazioni.index',$p) }}">Ubicazioni</a>
         </td>
       </tr>
     @endforeach
