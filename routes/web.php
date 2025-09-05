@@ -13,9 +13,12 @@ use App\Http\Controllers\Manutenzioni\RegistroController;
 use App\Http\Controllers\Manutenzioni\TipologiaController;
 use App\Http\Controllers\Attrezzature\AttrezzaturaController;
 use App\Http\Controllers\Attrezzature\AttrezzaturaTipologiaController;
-//use App\Http\Controllers\Attrezzature\SchedeController; // già creato
 use App\Http\Controllers\Addestramenti\TipologieController as AddTipologieController;
 use App\Http\Controllers\Addestramenti\RegistroController   as AddRegistroController;
+use App\Http\Controllers\Dpi\DpiTipoController;
+use App\Http\Controllers\Dpi\DpiArticoloController;
+use App\Http\Controllers\Dpi\DpiConsegnaController;
+use App\Http\Controllers\Dpi\DpiAllegatiController;
 
 
 // --- Modelli dinamici (CRUD + JSON + Builder) ------------------------------
@@ -102,6 +105,27 @@ Route::prefix('addestramenti/registro')->name('addestramenti.registro.')->group(
     Route::put('/{addestramento}',      [AddRegistroController::class, 'update'])->name('update');
     Route::delete('/{addestramento}',   [AddRegistroController::class, 'destroy'])->name('destroy');
 });
+
+Route::middleware(['auth'])->group(function () {
+    // Catalogo tipologie (generico)
+    Route::resource('dpi/tipi', DpiTipoController::class)->names('dpi.tipi');
+
+    // Catalogo articoli (specifico + stock integrato)
+    Route::resource('dpi/articoli', DpiArticoloController::class)->names('dpi.articoli');
+
+    // Consegne
+    Route::get('dpi/consegne', [DpiConsegnaController::class, 'index'])->name('dpi.consegne.index');
+    Route::get('dpi/consegne/create', [DpiConsegnaController::class, 'create'])->name('dpi.consegne.create');
+    Route::post('dpi/consegne', [DpiConsegnaController::class, 'store'])->name('dpi.consegne.store');
+
+    Route::post('dpi/consegne/{consegna}/restituzione', [DpiConsegnaController::class, 'restituzione'])->name('dpi.consegne.restituzione');
+    Route::post('dpi/consegne/{consegna}/sostituzione', [DpiConsegnaController::class, 'sostituzione'])->name('dpi.consegne.sostituzione');
+
+    // Allegati consegna (opzionale)
+    Route::post('dpi/consegne/{consegna}/allegati', [DpiAllegatiController::class,'store'])->name('dpi.consegne.allegati.store');
+    Route::get('dpi/consegne/allegati/{allegato}/download', [DpiAllegatiController::class,'download'])->name('dpi.consegne.allegati.download');
+});
+
 
 
 	
