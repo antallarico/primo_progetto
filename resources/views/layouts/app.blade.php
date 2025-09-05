@@ -125,6 +125,16 @@
     <a href="{{ url('/manutenzioni/registro') }}" class="{{ request()->is('manutenzioni/registro') ? 'active' : '' }}">📖 Registro</a>
   </div>
 
+	{{-- ======== Prodotti Chimici ======== --}}
+	@php $openChem = request()->routeIs('chimica.*'); @endphp
+	<button class="menu-toggle" data-bs-toggle="collapse" data-bs-target="#menuChimica"
+        aria-expanded="{{ $openChem ? 'true' : 'false' }}" aria-controls="menuChimica">
+		🧪 Sostanze chimiche <span class="chev"></span>
+	</button>
+	<div id="menuChimica" class="collapse {{ $openChem ? 'show' : '' }}">
+		<a href="{{ route('chimica.prodotti.index') }}" class="{{ request()->routeIs('chimica.prodotti.*') ? 'active' : '' }}">📦 Catalogo</a>
+	</div>
+	
   {{-- ========= Modelli Dinamici ========= --}}
   @php $openMod = request()->is('modelli-dinamici'); @endphp
   <button class="menu-toggle" data-bs-toggle="collapse" data-bs-target="#menuModelli"

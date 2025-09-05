@@ -19,6 +19,9 @@ use App\Http\Controllers\Dpi\DpiTipoController;
 use App\Http\Controllers\Dpi\DpiArticoloController;
 use App\Http\Controllers\Dpi\DpiConsegnaController;
 use App\Http\Controllers\Dpi\DpiAllegatiController;
+use App\Http\Controllers\Chimica\ProdottoChimicoController;
+use App\Http\Controllers\Chimica\SdsController;
+
 
 
 // --- Modelli dinamici (CRUD + JSON + Builder) ------------------------------
@@ -127,7 +130,19 @@ Route::group([], function () {
     Route::get('dpi/consegne/allegati/{allegato}/download', [DpiAllegatiController::class,'download'])->name('dpi.consegne.allegati.download');
 });
 
+Route::prefix('chimica')->name('chimica.')->group(function () {
+    // Catalogo prodotti
+    Route::resource('prodotti', ProdottoChimicoController::class)
+        ->names('prodotti')
+        ->parameters(['prodotti' => 'prodotto']);
 
+    // SDS (annidate per prodotto + azioni singola SDS)
+    Route::get('prodotti/{prodotto}/sds', [SdsController::class, 'index'])->name('prodotti.sds.index');
+    Route::post('prodotti/{prodotto}/sds', [SdsController::class, 'store'])->name('prodotti.sds.store');
+
+    Route::get('sds/{sds}/download', [SdsController::class, 'download'])->name('sds.download');
+    Route::delete('sds/{sds}', [SdsController::class, 'destroy'])->name('sds.destroy');
+});
 
 	
 Route::get('/lavoratori', function () {
