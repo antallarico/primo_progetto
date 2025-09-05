@@ -27,9 +27,15 @@ class DpiTipoController extends Controller
             'note' => 'nullable|string',
             'attivo' => 'boolean',
         ]);
-        DpiTipo::create($data);
-        return redirect()->route('dpi.tipi.index')->with('ok','Tipo DPI creato');
-    }
+		
+		// 🔧 Decode: da stringa JSON → array (solo se presente)
+		if (!empty($data['politica_scadenza_default'])) {
+			$data['politica_scadenza_default'] = json_decode($data['politica_scadenza_default'], true);
+		}
+		
+		DpiTipo::create($data);
+		return redirect()->route('dpi.tipi.index')->with('ok','Tipo DPI creato');
+	}
 
     public function edit(DpiTipo $tipo){
         return view('dpi.tipi.edit', compact('tipo'));
@@ -45,6 +51,13 @@ class DpiTipoController extends Controller
             'note' => 'nullable|string',
             'attivo' => 'boolean',
         ]);
+		
+		if (array_key_exists('politica_scadenza_default', $data)) {
+			$data['politica_scadenza_default'] = $data['politica_scadenza_default']
+				? json_decode($data['politica_scadenza_default'], true)
+				: null; // campo vuoto → NULL
+		}
+		
         $tipo->update($data);
         return redirect()->route('dpi.tipi.index')->with('ok','Tipo DPI aggiornato');
     }

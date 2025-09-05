@@ -9,12 +9,13 @@ class DpiConsegna extends Model
     protected $table = 'dpi_consegne';
     protected $fillable = [
         'lavoratore_id','articolo_id','quantita','data_consegna','data_primo_utilizzo',
-        'data_scadenza','stato','motivo_chiusura','note'
+        'data_scadenza','stato','motivo_chiusura','note', 'sostituisce_id', 'data_chiusura',
     ];
     protected $casts = [
         'data_consegna' => 'date',
         'data_primo_utilizzo' => 'date',
         'data_scadenza' => 'date',
+		'data_chiusura' => 'date',
     ];
 
     public function lavoratore(){ return $this->belongsTo(\App\Models\Lavoratore::class, 'lavoratore_id'); } // cambia se è Dipendente

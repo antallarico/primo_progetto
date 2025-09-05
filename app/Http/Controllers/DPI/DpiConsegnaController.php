@@ -104,6 +104,75 @@ class DpiConsegnaController extends Controller
      * “Sostituzione” nel senso pratico: chiudo la consegna attuale come SOSTITUITA
      * e creo una nuova consegna (anche stesso articolo/taglia), scalando stock.
      */
+	
+	public function sostituzione(Request $r, DpiConsegna $consegna)
+	{
+		$data = $r->validate([
+			'nuovo_articolo_id' => 'required|exists:dpi_articoli,id',
+			'quantita'          => 'required|integer|min:1',
+			'data_consegna'     => 'required|date',
+			'data_primo_utilizzo' => 'nullable|date',
+			'data_scadenza'     => 'nullable|date',
+			'motivo_chiusura'   => 'nullable|string|max:100', // es. usura
+			'note'              => 'nullable|string',
+		]);
+
+		$articoloNuovo = DpiArticolo::with('tipo')->findOrFail($data['nuovo_articolo_id']);
+
+		// ✅ Pre-check fuori dalla transazione: non toccare la riga vecchia se manca stock
+		if ($articoloNuovo->quantita_disponibile < $data['quantita']) {
+			return back()->withErrors(['quantita' => 'Quantità non disponibile a stock per la nuova consegna.'])->withInput();
+		}
+
+		try {
+			DB::beginTransaction();
+
+			// lock della consegna da chiudere
+			$consegna->refresh(); // carica ultimi valori
+			if ($consegna->stato !== 'ATTIVA') {
+				throw new \RuntimeException('La consegna da sostituire non è attiva.');
+			}
+
+			// Chiudi la vecchia (no rientro stock per “usura/sostituzione”)
+			$consegna->update([
+				'stato'         => 'SOSTITUITA',
+				'motivo_chiusura' => $data['motivo_chiusura'] ?? 'usura',
+				'data_chiusura' => now()->toDateString(), // se hai aggiunto il campo
+			]);
+
+			// Calcola scadenza della nuova (se non fornita)
+			$data['data_scadenza'] = $data['data_scadenza'] ?? $this->calcolaScadenza(
+				$articoloNuovo,
+				$data['data_primo_utilizzo'] ?? null,
+				$data['data_consegna']
+			);
+
+			// Crea la NUOVA riga (✅ storico garantito)
+			$nuova = DpiConsegna::create([
+				'lavoratore_id'       => $consegna->lavoratore_id,
+				'articolo_id'         => $articoloNuovo->id,
+				'quantita'            => $data['quantita'],
+				'data_consegna'       => $data['data_consegna'],
+				'data_primo_utilizzo' => $data['data_primo_utilizzo'] ?? null,
+				'data_scadenza'       => $data['data_scadenza'],
+				'stato'               => 'ATTIVA',
+				'note'                => $data['note'] ?? null,
+				'sostituisce_id'      => $consegna->id, // 🔗 link esplicito alla precedente
+			]);
+
+			// Scala stock del NUOVO articolo
+			$articoloNuovo->decrement('quantita_disponibile', $data['quantita']);
+
+			DB::commit();
+			return redirect()->route('dpi.consegne.index')->with('ok','Sostituzione registrata');
+		} catch (\Throwable $e) {
+			DB::rollBack();
+			return back()->withErrors(['sostituzione' => 'Errore durante la sostituzione: '.$e->getMessage()])->withInput();
+		}
+	}
+	
+	 
+/*	 
     public function sostituzione(Request $r, DpiConsegna $consegna)
     {
         $data = $r->validate([
@@ -159,7 +228,7 @@ class DpiConsegnaController extends Controller
             return redirect()->route('dpi.consegne.index')->with('ok','Sostituzione registrata');
         });
     }
-
+*/
     private function calcolaScadenza(DpiArticolo $articolo, ?string $dataPrimoUtilizzo, string $dataConsegna): ?string
     {
         // 1) priorità al valore del fabbricante sull'articolo

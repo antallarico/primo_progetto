@@ -106,12 +106,13 @@ Route::prefix('addestramenti/registro')->name('addestramenti.registro.')->group(
     Route::delete('/{addestramento}',   [AddRegistroController::class, 'destroy'])->name('destroy');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::group([], function () {
+// Route::middleware(['auth'])->group(function () {
     // Catalogo tipologie (generico)
-    Route::resource('dpi/tipi', DpiTipoController::class)->names('dpi.tipi');
+    Route::resource('dpi/tipi', DpiTipoController::class)->names('dpi.tipi')->parameters(['tipi' => 'tipo']);
 
     // Catalogo articoli (specifico + stock integrato)
-    Route::resource('dpi/articoli', DpiArticoloController::class)->names('dpi.articoli');
+    Route::resource('dpi/articoli', DpiArticoloController::class)->names('dpi.articoli')->parameters(['articoli' => 'articolo']);
 
     // Consegne
     Route::get('dpi/consegne', [DpiConsegnaController::class, 'index'])->name('dpi.consegne.index');

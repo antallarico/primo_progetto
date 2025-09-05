@@ -32,7 +32,7 @@
 
   <table class="table table-striped">
     <thead><tr>
-      <th>Lavoratore</th><th>DPI</th><th>Articolo</th><th>Q.ta</th><th>Consegna</th><th>Scadenza</th><th>Stato</th><th></th>
+      <th>Lavoratore</th><th>DPI</th><th>Articolo</th><th>Q.ta</th><th>Consegna</th><th>Scadenza</th><th>Chiusa</th><th>Stato</th><th></th>
     </tr></thead>
     <tbody>
       @foreach($consegne as $c)
@@ -43,7 +43,12 @@
         <td>{{ $c->quantita }}</td>
         <td>{{ $c->data_consegna?->format('d/m/Y') }}</td>
         <td>{{ $c->data_scadenza?->format('d/m/Y') ?? '-' }}</td>
-        <td>{{ $c->stato }}</td>
+		<td>{{ $c->data_chiusura?->format('d/m/Y') ?? '-' }}</td>
+        <td>{{ $c->stato }}
+			@if($c->sostituisce_id)
+				<span class="badge bg-light text-dark">↳ sostituisce #{{ $c->sostituisce_id }}</span>
+			@endif
+		</td>
         <td class="text-end">
           @if($c->stato === 'ATTIVA')
             <form method="POST" action="{{ route('dpi.consegne.restituzione',$c) }}" class="d-inline">
